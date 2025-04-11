@@ -4,9 +4,20 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const spotifyRoutes = require('./routes/spotifyRouter')
+const session = require('express-session');
+const passport = require('passport');
+require('./config/passport');
+
 
 const app = express();
 
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+  }));
+  app.use(passport.initialize());
+  app.use(passport.session());
 app.use(cors());
 app.use(bodyParser.json());
 

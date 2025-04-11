@@ -40,6 +40,24 @@ const userController = {
       res.status(500).json({ error: 'Failed to delete user' });
     }
   },
+  async oauthCallback(req, res) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'OAuth failed' });
+      }
+      
+      // Generate JWT token (if using tokens instead of sessions)
+      const token = generateToken(req.user);
+      
+      res.json({ 
+        user: req.user,
+        token 
+      });
+    } catch (error) {
+      logger.error(`OAuth error: ${error.message}`);
+      res.status(500).json({ error: 'OAuth failed' });
+    }
+  },
 
   async login(req, res) {
     try {

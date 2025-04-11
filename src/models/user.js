@@ -6,6 +6,7 @@ const userSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
+  googleId: Joi.string().optional()
 });
 
 const User = {
@@ -27,6 +28,12 @@ const User = {
       throw new Error(`Error creating user: ${error.message}`);
     }
 
+  },
+
+  async findByGoogleId(googleId) {
+    const query = 'SELECT * FROM users WHERE google_id = $1';
+    const { rows } = await pool.query(query, [googleId]);
+    return rows[0];
   },
 
   async deleteUserById(userData) {

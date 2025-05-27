@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 const Post = {
-   async create({ user_id, content, music = null, visibility, image_url = null}) {
+  async create({ user_id, content, music = null, visibility, image_url = null }) {
     const query = `
       INSERT INTO posts (user_id, content, music, visibility, image_url)
       VALUES ($1, $2, $3, $4, $5)
@@ -35,7 +35,7 @@ const Post = {
     return rows;
   },
   async findPostsByUserId(id, currentUserId) {
-    
+
     const query = `
       SELECT 
         posts.*,
@@ -51,13 +51,10 @@ const Post = {
       WHERE users.id = $1
       ORDER BY posts.timestamp DESC;
     `;
-    
-    console.log('Full query:', query); 
-    console.log('Parameters:', [id, currentUserId]); 
-    
+
     const { rows } = await pool.query(query, [id, currentUserId]);
-    console.log('Query returned rows:', rows.length); 
-    
+
+
     return rows;
   },
   async update(id, action) {
@@ -75,11 +72,11 @@ const Post = {
       default:
         throw new Error('Invalid action');
     }
-  
+
     const { rows } = await pool.query(query, [id]);
     return rows[0];
   },
-  
+
 
   async delete(id) {
     const query = 'DELETE FROM posts WHERE id = $1 RETURNING *;';

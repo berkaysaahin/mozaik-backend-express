@@ -23,6 +23,22 @@ const userController = {
     }
   },
 
+  async updateProfile(req, res) {
+    try {
+      const { userId } = req.params;
+      const updates = req.body;
+
+      const updatedUser = await User.updateUserProfile(userId, updates);
+      
+      const { password: _, ...userData } = updatedUser;
+      res.status(200).json(userData);
+    } catch (error) {
+      logger.error(`Error updating profile: ${error.message}`);
+      res.status(500).json({ error: 'Failed to update profile' });
+    }
+  },
+
+
   async deleteUser(req, res) {
     try {
       const { id } = req.params;
@@ -46,7 +62,6 @@ const userController = {
         return res.status(401).json({ error: 'OAuth failed' });
       }
       
-      // Generate JWT token (if using tokens instead of sessions)
       const token = generateToken(req.user);
       
       res.json({ 
@@ -81,17 +96,15 @@ const userController = {
   },
   async getUser(req, res) {
     try {
-      const { handle, id } = req.query; 
+      const { userId } = req.params; 
   
-      if (!handle && !id) {
-        return res.status(400).json({ error: 'Handle or ID is required' });
+      if (!userId) {
+        return res.status(400).json({ error: 'USERID is required' });
       }
   
       let user;
-      if (handle) {
-        user = await User.findByHandle(handle);
-      } else if (id) {
-        user = await User.findById(id);
+      if (userId) {
+        user = await User.findById(userId);
       }
   
       if (!user) {
@@ -122,3 +135,4 @@ const userController = {
 };
 
 module.exports = userController;
+

@@ -2,7 +2,7 @@ const Post = require('../models/post');
 const { getSimplifiedTrackDetails } = require('../config/spotify');
 
 const postController = {
- 
+
   async createPost(req, res) {
     try {
       const { user_id, content, spotify_track_id, visibility, image_url } = req.body;
@@ -12,8 +12,8 @@ const postController = {
         const trackDetails = await getSimplifiedTrackDetails(spotify_track_id);
 
         music = {
-          spotify_track_id, 
-          ...trackDetails, 
+          spotify_track_id,
+          ...trackDetails,
         };
       }
 
@@ -24,31 +24,31 @@ const postController = {
       res.status(500).json({ error: 'Failed to create post' });
     }
   },
-  
-  
-    async getAllPosts(req, res) {
-      try {
-        const userId = req.query.user_id;
-  
-        if (!userId) {
-          return res.status(400).json({ error: 'user_id is required' });
-        }
-  
-        const posts = await Post.findAll(userId); 
-  
-        
-  
-        res.status(200).json(posts);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        res.status(500).json({ error: 'Failed to fetch posts' });
+
+
+  async getAllPosts(req, res) {
+    try {
+      const userId = req.query.user_id;
+
+      if (!userId) {
+        return res.status(400).json({ error: 'user_id is required' });
       }
-    },
-  
+
+      const posts = await Post.findAll(userId);
+
+
+
+      res.status(200).json(posts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+  },
+
   async getPostById(req, res) {
     try {
       const { id } = req.params;
-      const post = await Post.findById(id); 
+      const post = await Post.findById(id);
 
       if (!post) {
         return res.status(404).json({ error: 'Post not found' });
@@ -64,9 +64,9 @@ const postController = {
   async getUserPostsById(req, res) {
     try {
       const { id } = req.params;
-      
-      const posts = await Post.findPostsByUserId(id); 
-  
+
+      const posts = await Post.findPostsByUserId(id);
+
       res.status(200).json(posts);
     } catch (error) {
       console.error('Error fetching posts:', error);

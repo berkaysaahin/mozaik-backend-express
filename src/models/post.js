@@ -42,6 +42,7 @@ const Post = {
         users.username,
         users.handle,
         users.profile_picture,
+        users.id AS user_id,
         (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count,
         (SELECT COUNT(*) FROM reblog WHERE reblog.post_id = posts.id) AS reblog_count,
         EXISTS (SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $2) AS has_liked,
@@ -57,26 +58,7 @@ const Post = {
 
     return rows;
   },
-  async update(id, action) {
-    let query;
-    switch (action) {
-      case 'like':
-        query = 'UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING *;';
-        break;
-      case 'retweet':
-        query = 'UPDATE posts SET retweets = retweets + 1 WHERE id = $1 RETURNING *;';
-        break;
-      case 'comment':
-        query = 'UPDATE posts SET comments = comments + 1 WHERE id = $1 RETURNING *;';
-        break;
-      default:
-        throw new Error('Invalid action');
-    }
-
-    const { rows } = await pool.query(query, [id]);
-    return rows[0];
-  },
-
+  
 
   async delete(id) {
     const query = 'DELETE FROM posts WHERE id = $1 RETURNING *;';

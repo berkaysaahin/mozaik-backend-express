@@ -1,4 +1,5 @@
 const Post = require('../models/post');
+const Like = require('../models/like');
 const { getSimplifiedTrackDetails } = require('../config/spotify');
 
 const postController = {
@@ -64,8 +65,11 @@ const postController = {
   async getUserPostsById(req, res) {
     try {
       const { id } = req.params;
+      const currentUserId = req.query.current_user_id || null;
+      console.log('userId:', id);
+      console.log('currentUserId:', currentUserId);
 
-      const posts = await Post.findPostsByUserId(id);
+      const posts = await Post.findPostsByUserId(id, currentUserId);
 
       res.status(200).json(posts);
     } catch (error) {
@@ -100,6 +104,33 @@ const postController = {
     } catch (error) {
       console.error('Error deleting post:', error);
       res.status(500).json({ error: 'Failed to delete post' });
+    }
+  },
+
+
+  async likePost(req, res) {
+    try {
+      const { id } = req.params; 
+      const { user_id } = req.body;
+
+      const likeCount = await Like.likePost(user_id, id);
+      res.status(200).json({ post_id: id, like_count: likeCount });
+    } catch (error) {
+      console.error('Error liking post:', error);
+      res.status(400).json({ error: error.message || 'Failed to like post' });
+    }
+  },
+
+  async unlikePost(req, res) {
+    try {
+      const { id } = req.params;
+      const { user_id } = req.body;
+
+      const likeCount = await Like.unlikePost(user_id, id);
+      res.status(200).json({ post_id: id, like_count: likeCount });
+    } catch (error) {
+      console.error('Error unliking post:', error);
+      res.status(400).json({ error: error.message || 'Failed to unlike post' });
     }
   },
 };

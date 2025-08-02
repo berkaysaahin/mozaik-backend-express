@@ -35,10 +35,20 @@ const messageController = {
                 content
             });
 
+            const io = req.app.get('io');
+
+            io.to(`convo_${conversation_id}`).emit('newMessage', {
+                action: 'create',
+                message: message
+            });
+
             res.status(201).json({
                 message: 'Message sent successfully',
                 data: message
             });
+
+
+
 
         } catch (error) {
             res.status(500).json({
@@ -46,6 +56,8 @@ const messageController = {
                 details: error.message
             });
         }
+
+
     },
 
     async getMessages(req, res) {
@@ -55,17 +67,11 @@ const messageController = {
 
             const conversation = await Conversation.findById(conversationId);
             if (!conversation) {
-                return res.status(404).json({
-                    error: 'Conversation not found',
-                    details: `No conversation with ID ${conversationId} exists`
-                });
+                return res.status(404).json({ error: 'Conversation not found' });
             }
 
             if (![conversation.user1, conversation.user2].includes(userId)) {
-                return res.status(403).json({
-                    error: 'Unauthorized',
-                    details: 'You are not a participant in this conversation'
-                });
+                return res.status(403).json({ error: 'Unauthorized' });
             }
 
             const { limit = 50, offset = 0 } = req.query;
@@ -73,7 +79,17 @@ const messageController = {
 
             await Message.markAsSeen(conversationId, userId);
 
-            res.json({
+            const io = req.app.get('io');
+            try {
+                io.to(`convo_${conversationId}`).emit('messagesRead', {
+                    conversationId,
+                    readerId: userId
+                });
+            } catch (e) {
+                console.error('Socket emit error:', e);
+            }
+
+            return res.json({
                 message: 'Messages retrieved successfully',
                 data: messages,
                 meta: {
@@ -85,12 +101,13 @@ const messageController = {
             });
 
         } catch (error) {
-            res.status(500).json({
+            return res.status(500).json({
                 error: 'Failed to retrieve messages',
                 details: error.message
             });
         }
-    },
+    }
+    ,
 
     async deleteMessage(req, res) {
         try {
@@ -105,10 +122,20 @@ const messageController = {
                 });
             }
 
+            const io = req.app.get('io');
+            io.to(`convo_${deletedMessage.conversation_id}`).emit('messageDeleted', {
+                action: 'delete',
+                messageId: deletedMessage.id,
+                conversationId: deletedMessage.conversation_id
+            });
+
             res.json({
                 message: 'Message deleted successfully',
                 data: deletedMessage
             });
+
+
+
 
         } catch (error) {
             res.status(500).json({

@@ -15,4 +15,8 @@ router.patch('/:id', postController.updatePost);
 
 router.delete('/:id', postController.deletePost);
 
+router.post('/:id/like', postController.likePost);
+
+router.delete('/:id/like', postController.unlikePost);
+
 module.exports = router;

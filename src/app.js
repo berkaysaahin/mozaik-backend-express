@@ -2,14 +2,27 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('passport');
-
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const spotifyRoutes = require('./routes/spotifyRouter');
 const authRoutes = require('./routes/authRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const http = require('http');
+const socketIO = require('socket.io');
+
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: process.env.CORS_ORIGINS?.split(',') || '*',
+    methods: ["GET", "POST"]
+  }
+});
+
+app.set('io', io);
+
+require('./config/socket.js')(io);
 
 app.use(cors({
   origin: process.env.CORS_ORIGINS?.split(',') || '*',
@@ -35,4 +48,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = app;
+
+
+module.exports = server;

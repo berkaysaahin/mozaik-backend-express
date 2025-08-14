@@ -15,10 +15,7 @@ const conversationController = {
 
             const conversation = await Conversation.create(user1, user2);
 
-            res.status(201).json({
-
-                conversation
-            });
+            res.status(201).json(conversation);
         } catch (error) {
             if (error.message.includes('violates foreign key constraint')) {
                 return res.status(400).json({
@@ -43,14 +40,8 @@ const conversationController = {
 
             const conversations = await Conversation.findByUserId(userId);
 
-            if (conversations.length === 0) {
-                return res.status(200).json({
-                    message: 'No conversations found',
-                    conversations: []
-                });
-            }
-
-            res.json(conversations);
+           
+            return res.status(200).json(conversations);
         } catch (error) {
             res.status(500).json({
                 error: 'Failed to fetch conversations',
